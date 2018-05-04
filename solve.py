@@ -1,12 +1,18 @@
 #!/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
 
-# triviaBot - Answers live trivia game questions with a 70% success rate.
+# triviaBot - Answers live trivia game questions with a 80% avg success rate.
 
 # Created by Hesham Saleh on 07/03/18.
 # Copyright © 2018 Hesham Saleh. All rights reserved.
 
 import io
 import os
+
+#Take screenshots
+#os.system("screencapture -R910,215,350,90 question.png")
+#os.system("screencapture -R930,370,235,35 ansA.png")
+#os.system("screencapture -R930,445,235,35 ansB.png")
+#os.system("screencapture -R930,520,235,35 ansC.png")
 
 # OCR (text extraction)
 from PIL import Image
@@ -51,15 +57,36 @@ a2 = Image.open(ans2_file)
 a3 = Image.open(ans3_file)
 
 # Q&A parsing
-q_text  = pytesseract.image_to_string(q, lang = 'eng')
-a1_text = pytesseract.image_to_string(a1, lang = 'eng')
-a2_text = pytesseract.image_to_string(a2, lang = 'eng')
-a3_text = pytesseract.image_to_string(a3, lang = 'eng')
+q_text  = pytesseract.image_to_string(q)
+a1_text = pytesseract.image_to_string(a1)
+a2_text = pytesseract.image_to_string(a2)
+a3_text = pytesseract.image_to_string(a3)
+
+# Single characters (Change Page Segmentation Mode)
+if a1_text == "" or a2_text == "" or a3_text == "":
+    a1_text = pytesseract.image_to_string(a1,config='-psm 10000')
+    a2_text = pytesseract.image_to_string(a2,config='-psm 10000')
+    a3_text = pytesseract.image_to_string(a3,config='-psm 10000')
+
+"""
+q_text  = q_text.lower().replace("spfing", "spring")
+a1_text = a1_text.lower().replace("spfing", "spring")
+a2_text = a2_text.lower().replace("spfing", "spring")
+a3_text = a3_text.lower().replace("spfing", "spring")
+"""
+a1_text = a1_text.replace("ﬂ", "fi")
+a1_text = a1_text.replace("ﬁ", "fi")
+a2_text = a2_text.replace("ﬂ", "fi")
+a2_text = a2_text.replace("ﬁ", "fi")
+a3_text = a3_text.replace("ﬂ", "fi")
+a3_text = a3_text.replace("ﬁ", "fi")
 
 answers = [a1_text,a2_text,a3_text]
 
+q_text = q_text.replace("ﬂ", "fi")
 q_text = q_text.replace("ﬁ", "fi")
 q_text_arr = q_text.split("\n")
+
 q_arr = []
 for s in q_text_arr:
     if not (s == "" or re.match(' +',s)):
@@ -71,8 +98,9 @@ print("Question: " + question + "\na) " + answers[0] + "\nb) " + answers[1] + "\
 question = question.lower()
 
 notFlag = False
-if "not" in question:
+if " not " in question or "never" in question:
     question = question.replace("not","")
+    question = question.replace("never","")
     notFlag = True
 
 # Calculates percentage of correctness compared to alternative options
@@ -92,8 +120,6 @@ soup = BeautifulSoup(response.text, 'lxml')
 for g in soup.find_all(class_='g'):
     output += g.text
 
-# print(result)
-
 def count(answer):
     counter = 0
     counter = sum(1 for _ in re.finditer(r'\b%s\b' % re.escape(answer.lower()), output.lower()))
@@ -110,21 +136,12 @@ maxVal = max(a,b,c)
 total = a + b + c
 if total == 0: total = 1 # Division by Zero
 
-###
-"""
-scoreA = str(round((a * 10)/total))
-scoreB = str(round((b * 10)/total))
-scoreC = str(round((c * 10)/total))
-
-print(scoreA)
-print(scoreB)
-print(scoreC)
-"""
-###
-        
 print("Google Search results")
 
-if notFlag:
+if a == b and b == c:
+    print("----NO RESULT----")
+    
+elif notFlag:
     
     minVal = min(a,b,c)
     
@@ -142,17 +159,17 @@ else:
         print("Answer is " + answers[1] + confidence(b))
     else:
         print("Answer is " + answers[2] + confidence(c))
-
+        
 print();
 
 # Google custom search function
 def google_search(question, answer):
     service = build("customsearch", "v1", developerKey=dev_key)
-    res = service.cse().list(q=question, cx=my_cse_id, exactTerms=answer, fields='searchInformation').execute()
+    res = service.cse().list(q=question, cx=my_cse_id, exactTerms=answer.lower(), fields='searchInformation').execute()
     return res['searchInformation']
 
 # Queries are run in parallel using joblib
-results = Parallel(n_jobs=4)(delayed(google_search)(question,answer.lower()) for answer in answers)
+results = Parallel(n_jobs=4)(delayed(google_search)(question,answer) for answer in answers)
 
 a = int(results[0]['totalResults'])
 b = int(results[1]['totalResults'])
@@ -163,40 +180,12 @@ maxVal = max(a,b,c)
 total = a + b + c
 if total == 0: total = 1
 
-###
-
-"""
-score2A = str(round((a * 10)/total))
-score2B = str(round((b * 10)/total))
-score2C = str(round((c * 10)/total))
-
-print()
-print(score2A)
-print(score2B)
-print(score2C)
-
-# totalScore = int(scoreA) + int(score2A) + int(scoreB) + int(score2B) + int(scoreC) + int(score2C)
-# totalA = str(round(((int(scoreA) + int(score2A))*10)/totalScore))
-# totalB = str(round(((int(scoreB) + int(score2B))*10)/totalScore))
-# totalC = str(round(((int(scoreC) + int(score2C))*10)/totalScore))
-
-
-totalA = str(int(scoreA) + int(score2A))
-totalB = str(int(scoreB) + int(score2B))
-totalC = str(int(scoreC) + int(score2C))
-
-print()
-print(totalA)
-print(totalB)
-print(totalC)
-
-"""
-
-###
-
 print("Number of Results:");
 
-if notFlag:
+if a == b and b == c:
+    print("----NO RESULT----")
+    
+elif notFlag:
 
     minVal = min(a,b,c)
     
@@ -232,26 +221,4 @@ print();
 
 # If there is a tie in confidence, go with Google Search (provide an overall confidence later)
 # exact terms search and count occurence (match words in any order using regex)
-# Autocorrect misspelled words.
-
-"""
-def wiki(answer):
-    text1 = answer.lower()
-    text1 = urllib.parse.quote_plus(text1)
-    url = 'https://en.wikipedia.org/wiki/Special:Search?search=' + text1
-    resp = requests.get(url)
-    resu = ""
-    soup = BeautifulSoup(resp.text, 'lxml')
-    for g in soup.find_all('p'):
-        resu += g.text
-    counter = 0
-    counter = sum(1 for _ in re.finditer(r'\b%s\b' % re.escape(answer.lower()), resu.lower()))
-    return str(counter)
-
-
-# Queries are run in parallel using joblib
-rests = Parallel(n_jobs=6)(delayed(wiki)(answer) for answer in answers)
-
-print("Wikipedia results")
-"""
-
+# Autocorrect misspelled words. (Hunspell)

@@ -60,10 +60,10 @@
 				<dict>
 					<key>COMMAND_STRING</key>
 					<string>cd Desktop/Bot/
-screencapture -R895,160,360,110 question.png
-screencapture -R920,319,315,50 ansA.png
-screencapture -R920,397,315,50 ansB.png
-screencapture -R920,475,315,50 ansC.png
+screencapture -R910,215,350,90 question.png
+screencapture -R930,370,240,35 ansA.png
+screencapture -R930,445,240,35 ansB.png
+screencapture -R930,520,240,35 ansC.png
 open -a Terminal.app solve.py</string>
 					<key>CheckedForUserDefaultShell</key>
 					<true/>
