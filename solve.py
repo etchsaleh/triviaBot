@@ -8,14 +8,6 @@
 import io
 import os
 
-#Take screenshots (Done by Automator)
-"""
-os.system("screencapture -R910,215,350,90 question.png")
-os.system("screencapture -R930,370,235,35 ansA.png")
-os.system("screencapture -R930,445,235,35 ansB.png")
-os.system("screencapture -R930,520,235,35 ansC.png")
-"""
-
 # OCR (text extraction)
 from PIL import Image
 import pytesseract
@@ -36,8 +28,8 @@ import webbrowser
 from googleapiclient.discovery import build
 
 # Credentials
-my_cse_id = "017243323922835907384:7bywfbe83ve"
-dev_key = "AIzaSyDpTXV69ahVIKhUUWtQ9p4gyO1TY_omTl8"
+my_cse_id = "your cse_id here"
+dev_key = "your dev_key here"
 
 # Image directory
 question_file = os.path.join(
