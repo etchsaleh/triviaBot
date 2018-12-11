@@ -1,6 +1,6 @@
 #!/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
 
-# triviaBot - Answers live trivia game questions with a 80% avg success rate.
+# triviaBot - Answers live trivia game questions with a 85% avg success rate.
 
 # Created by Hesham Saleh on 07/03/18.
 # Copyright © 2018 Hesham Saleh. All rights reserved.
@@ -8,11 +8,13 @@
 import io
 import os
 
-#Take screenshots
-#os.system("screencapture -R910,215,350,90 question.png")
-#os.system("screencapture -R930,370,235,35 ansA.png")
-#os.system("screencapture -R930,445,235,35 ansB.png")
-#os.system("screencapture -R930,520,235,35 ansC.png")
+#Take screenshots (Done by Automator)
+"""
+os.system("screencapture -R910,215,350,90 question.png")
+os.system("screencapture -R930,370,235,35 ansA.png")
+os.system("screencapture -R930,445,235,35 ansB.png")
+os.system("screencapture -R930,520,235,35 ansC.png")
+"""
 
 # OCR (text extraction)
 from PIL import Image
@@ -68,23 +70,8 @@ if a1_text == "" or a2_text == "" or a3_text == "":
     a2_text = pytesseract.image_to_string(a2,config='-psm 10000')
     a3_text = pytesseract.image_to_string(a3,config='-psm 10000')
 
-"""
-q_text  = q_text.lower().replace("spfing", "spring")
-a1_text = a1_text.lower().replace("spfing", "spring")
-a2_text = a2_text.lower().replace("spfing", "spring")
-a3_text = a3_text.lower().replace("spfing", "spring")
-"""
-a1_text = a1_text.replace("ﬂ", "fi")
-a1_text = a1_text.replace("ﬁ", "fi")
-a2_text = a2_text.replace("ﬂ", "fi")
-a2_text = a2_text.replace("ﬁ", "fi")
-a3_text = a3_text.replace("ﬂ", "fi")
-a3_text = a3_text.replace("ﬁ", "fi")
-
 answers = [a1_text,a2_text,a3_text]
 
-q_text = q_text.replace("ﬂ", "fi")
-q_text = q_text.replace("ﬁ", "fi")
 q_text_arr = q_text.split("\n")
 
 q_arr = []
@@ -205,20 +192,3 @@ else:
         print("Answer is " + answers[2] + confidence(c))
 
 print();
-
-# r = "dogs are cool goggy thing dog my doggo"
-# count = r.count("dog")
-# print(str(count))
-
-#TO DO: use inflect lib for punctuation.
-
-# Identify Enitities using Google NLP, then search for entities in Wikipedia
-# Classify question and use solvers (Wiki, IMDb, Google, Number of results, Bing)
-# Remember to extract entities with High salience and search for them in wiki pages.
-
-# If question contains NOT or NEVER, pick LEAST matching result.
-# Least/most, smallest/largest
-
-# If there is a tie in confidence, go with Google Search (provide an overall confidence later)
-# exact terms search and count occurence (match words in any order using regex)
-# Autocorrect misspelled words. (Hunspell)
